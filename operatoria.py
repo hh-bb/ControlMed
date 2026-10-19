@@ -1,87 +1,50 @@
-import pymysql #conexión con base
-import datetime
-from datetime import timedelta
+import pymysql
+from datetime import date
 
+# Conexión correcta usando argumentos nombrados
+db = pymysql.connect(
+    host="localhost",
+    user="root",
+    password="",
+    database="php_login_database"
+)
 
-
-# Abre conexion con la base de datos
-db = pymysql.connect("localhost", "root", "", "php_login_database")
-
-
-# prepare a cursor object using cursor() method
 cursor = db.cursor()
 
-# Prepare SQL query to READ a record into the database.
-sql = "SELECT dosis, dosisindicada, fechareceta FROM pacientes".format(0)
-# Execute the SQL command
+# Obtener datos de la tabla pacientes
+sql = "SELECT dosis, dosisindicada, fechareceta FROM pacientes"
 cursor.execute(sql)
-
-# Fetch all the rows in a list of lists.
 results = cursor.fetchall()
-#xxxxxxxxxxxxxxxxxxxxxxx
-print(results)
-b = list(sum(results,()))
 
+if results:
+    sqldosis1 = [row[0] for row in results]
+    sqldosisindicada1 = [row[1] for row in results]
+    sqlfechareceta1 = [row[2] for row in results]
 
-#prueba extrayendo listas individuales
-sqldosis = "SELECT dosis FROM pacientes".format(0)
-cursor.execute(sqldosis)
-sqldosis0 = cursor.fetchall() #limpia y convierte en lista de pacientes
-sqldosis1 = []
-for t in sqldosis0:
-       for x in t:
-           sqldosis1.append(x)
+    db.close()
 
-
-sqldosisindicada = "SELECT dosisindicada FROM pacientes".format(0)
-cursor.execute(sqldosisindicada)
-sqldosisindicada0 = cursor.fetchall() 
-sqldosisindicada1 = [] #limpia y convierte en lista la dosis indicada
-for t in sqldosisindicada0:
-       for x in t:
-           sqldosisindicada1.append(x)
-        
-sqlfechareceta = "SELECT fechareceta FROM pacientes".format(0)
-cursor.execute(sqlfechareceta)
-sqlfechareceta0 = cursor.fetchall() 
-
-sqlfechareceta1 = [] #limpia y convierte en lista la fecha de la receta
-for t in sqlfechareceta0:
-       for x in t:
-           sqlfechareceta1.append(x)
-        
-db.close() #no olvidar cerrar la base de datos
-
-
+    # Cálculos
+    quedamed = [round(sqldosis1[i] / sqldosisindicada1[i]) if sqldosisindicada1[i] > 0 else 0 for i in range(len(sqldosis1))]
     
-quedamed = [] #días que quedan de medicación 
-for i,w in enumerate(sqldosis1):
-    quedamed.append(round(sqldosis1[i] / sqldosisindicada1[i])) #redondeo de dosis
-   
+    hoy = date.today()
+    hoyyreceta = [hoy - n for n in sqlfechareceta1]
+    diasint = [d.days for d in hoyyreceta]
 
-hoy = date.today() #día de hoy
-print(hoy)
+    # Corrección de la variable 'dias' a 'diasint'
+    calculo = [round(diasint[i] - quedamed[i]) for i in range(len(diasint))]
+    print("Cálculo de días restantes:", calculo)
 
-hoyyreceta = []
-for n in sqlfechareceta1: #distancia de días entre hoy y la fecha de la receta (devuelve tipo fecha)
-    hoyyreceta.append(hoy - n)
-print("----------------------------",hoyyreceta)
-
-diasint = [d.days for d in hoyyreceta] #conversion de lista de dias a lista de enteros
-
-
-
-
-calculo =  [] 
-for i,w in enumerate(dias): #dias con medicación: si está negativo significa que se acabó
-    calculo.append(round(diasint[i] - quedamed[i]))
-print("print papa:::::::::::", calculo)
-
-
-db = pymysql.connect("localhost", "root", "", "php_login_database")
-
-cursor = db.cursor()
-
-sql="INSERT into operatoria(op) values (%s)"
-
-cursor.execute(sql, queda)
+    # Reconectar para guardar el resultado (ejemplo con el primer valor o iterando)
+    db = pymysql.connect(host="localhost", user="root", password="", database="php_login_database")
+    cursor = db.cursor()
+    
+    # Asegúrate de que la tabla 'operatoria' exista en tu base de datos
+    sql_insert = "INSERT INTO operatoria (op) VALUES (%s)"
+    for val in calculo:
+        cursor.execute(sql_insert, (val,))
+    
+    db.commit()
+    db.close()
+else:
+    print("No hay pacientes registrados.")
+    db.close()
