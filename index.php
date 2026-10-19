@@ -1,58 +1,37 @@
 <?php
-  session_start();
+session_start();
+require 'database.php';
 
-  require 'database.php';
+$user = null;
 
-  if (isset($_SESSION['user_id'])) {
+if (isset($_SESSION['user_id'])) {
     $records = $conn->prepare('SELECT id, email, password FROM users WHERE id = :id');
     $records->bindParam(':id', $_SESSION['user_id']);
     $records->execute();
     $results = $records->fetch(PDO::FETCH_ASSOC);
 
-    $user = null;
-
-    if (count($results) > 0) {
-      $user = $results;
+    if ($results) {
+        $user = $results;
+        // Redirección limpia antes de enviar HTML
+        header("Location: main2.php");
+        exit();
     }
-  }
+}
 ?>
-
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="es">
+<head>
     <meta charset="utf-8">
-    <title>ControlMed</title>
+    <title>ControlMed - Inicio</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
-  </head>
-  <body>
-    <?php require 'partials/header.php' ?>
+</head>
+<body>
+    <?php require 'partials/header.php'; ?>
 
-    <?php if(!empty($user)): ?>
-      <br> Bienvenido <?= $user['email']; ?>
-      <br>Ingreso correcto - 
-      <a href="logout.php">
-        Logout
-      </a>
-      <?php sleep(1); ?>
-      <?php header("Status: 301 Moved Permanently"); ?>
-      <?php header("Location: main2.php"); ?>
-    <?php else: ?>
-      
-      <h2>Para continuar, ingrese con usuario o regístrese</h2>
+    <h2>Para continuar, ingrese con usuario o regístrese</h2>
+    <p><a href="login.php">Ingreso</a> / <a href="signup.php">Registro</a></p>
 
-      <a href="login.php">Ingreso</a> / <a href="signup.php">Registro</a>
-    <?php endif; ?>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br><br>
-
-  </body>
-
+    <?php require 'partials/footer.php'; ?>
+</body>
 </html>
