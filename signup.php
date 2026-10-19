@@ -1,10 +1,8 @@
 <?php
+require 'database.php';
+$message = '';
 
-  require 'database.php';
-
-  $message = '';
-
-  if (!empty($_POST['email']) && !empty($_POST['password'])) {
+if (!empty($_POST['email']) && !empty($_POST['password'])) {
     $sql = "INSERT INTO users (email, password) VALUES (:email, :password)";
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(':email', $_POST['email']);
@@ -12,36 +10,36 @@
     $stmt->bindParam(':password', $password);
 
     if ($stmt->execute()) {
-      $message = 'Nuevo usuario creado';
+        $message = 'Nuevo usuario creado con éxito. <a href="login.php">Inicia sesión</a>';
     } else {
-      $message = 'Problema al crear usuario';
+        $message = 'Problema al crear usuario';
     }
-  }
+}
 ?>
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="es">
+<head>
     <meta charset="utf-8">
-    <title>SignUp</title>
+    <title>Registro</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
-  </head>
-  <body>
-
-    <?php require 'partials/header.php' ?>
+</head>
+<body>
+    <?php require 'partials/header.php'; ?>
 
     <?php if(!empty($message)): ?>
-      <p> <?= $message ?></p>
+        <p><?= $message ?></p>
     <?php endif; ?>
 
     <h1>Registro</h1>
     <span>o <a href="login.php">Ingreso</a></span>
 
     <form action="signup.php" method="POST">
-      <input name="email" type="text" placeholder="Ingrese su mail">
-      <input name="password" type="password" placeholder="Elija una contraseña">
-      <input type="submit" value="Ingresar">
+        <input name="email" type="email" placeholder="Ingrese su mail" required>
+        <input name="password" type="password" placeholder="Elija una contraseña" required>
+        <input type="submit" value="Registrarse">
     </form>
 
-  </body>
+    <?php require 'partials/footer.php'; ?>
+</body>
 </html>
