@@ -50,6 +50,9 @@ input[type="submit"]:hover {
 	padding: 15px;
 	font-size: 1.4em;
 	font-family: 'Roboto', sans-serif;
+    /* ... otras propiedades ... */
+    background-image: url('vacio.png');
+    background-size: cover;
 }
 
 .table__header{
@@ -73,13 +76,16 @@ input[type="submit"]:hover {
 }
 
 header {
-	font-family: 'Comfortaa', cursive;
-	border-bottom: 2px solid #eee;
-	padding: 20px 0;
-	margin-bottom: 10px;
-	width: 100%;
-	text-align: center;
-	background-color: #fff;
+    font-family: 'Comfortaa', cursive;
+    border-bottom: 2px solid #eee;
+    padding: 20px 0;
+    margin-bottom: 10px;
+    width: 100%;
+    text-align: center;
+    /* Al estar en la misma carpeta que style.css, se llama directo */
+    background-image: url('00.png');
+    background-size: cover;
+    background-position: center;
 }
 
 header a{
